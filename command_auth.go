@@ -1,9 +1,13 @@
 package main
 
-func command_auth_create(params []string, args map[string]string) error {
+import(
+    "github.com/leehuk/golang-clicommand"
+)
+
+func command_auth_create(params *clicommand.CLICommandData) error {
     return nil
 }
 
-func command_auth_get(params []string, args map[string]string) error {
+func command_auth_get(params *clicommand.CLICommandData) error {
     return nil
 }
