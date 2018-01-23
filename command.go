@@ -5,14 +5,14 @@ import(
 )
 
 func cmd_init() *clicommand.CLICommand {
-    cmd_root := clicommand.New("gh", "CLI tool for accessing the github.com API")
+    cli_root := clicommand.New("gh", "CLI tool for accessing the github.com API")
 
-    cmd_root.AddArg("oj", "Output in JSON", false)
-    cmd_root.AddArg("os", "Output in simple parseable form", false)
+    cli_root.AddArg("oj", "Output in JSON", false)
+    cli_root.AddArg("os", "Output in simple parseable form", false)
 
-    cmd_auth := cmd_root.AddMenu("auth", "Manage OAuth Access", nil)
-    cmd_auth.AddMenu("create", "Create OAuth Token", command_auth_create)
-    cmd_auth.AddMenu("create", "Get OAuth Token Details", command_auth_get)
+    cli_auth := cli_root.AddMenu("auth", "Manage OAuth Access", nil)
+    cli_auth.AddMenu("create", "Create OAuth Token", command_auth_create)
+    cli_auth.AddMenu("get", "Get OAuth Token Details", command_auth_get)
 
-    return cmd_root
+    return cli_root
 }
