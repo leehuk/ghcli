@@ -5,7 +5,7 @@ import(
 )
 
 func cmd_init() *clicommand.CLICommand {
-    cli_root := clicommand.New("gh", "CLI tool for accessing the github.com API")
+    cli_root := clicommand.New("ghcli", "CLI tool for accessing the github.com API")
 
     cli_root.AddArg("oj", "Output in JSON", false)
     cli_root.AddArg("os", "Output in simple parseable form", false)
