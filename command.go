@@ -4,14 +4,15 @@ import(
     "github.com/leehuk/golang-clicommand"
 )
 
-func cmd_init() *clicommand.Command {
-    cli_root := clicommand.New("gh", "CLI tool for accessing the github.com API", nil, nil)
-    clicommand.NewArg(cli_root, "oj", false, "Output in JSON")
-    clicommand.NewArg(cli_root, "os", false, "Output in simple parseable form")
+func cmd_init() *clicommand.CLICommand {
+    cmd_root := clicommand.New("gh", "CLI tool for accessing the github.com API")
 
-    cli_auth := clicommand.New("auth", "Manage OAuth Access", cli_root, nil)
-    clicommand.New("create", "Create OAuth Token", cli_auth, command_auth_create)
-    clicommand.New("create", "Get OAuth Token Details", cli_auth, command_auth_get)
+    cmd_root.AddArg("oj", "Output in JSON", false)
+    cmd_root.AddArg("os", "Output in simple parseable form", false)
 
-    return cli_root
+    cmd_auth := cmd_root.AddMenu("auth", "Manage OAuth Access", nil)
+    cmd_auth.AddMenu("create", "Create OAuth Token", command_auth_create)
+    cmd_auth.AddMenu("create", "Get OAuth Token Details", command_auth_get)
+
+    return cmd_root
 }
