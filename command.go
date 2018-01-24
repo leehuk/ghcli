@@ -7,7 +7,7 @@ import(
     "github.com/leehuk/golang-clicommand"
 )
 
-func cmd_init() *clicommand.CLICommand {
+func cmd_init() *clicommand.Command {
     cli_root := clicommand.New("ghcli", "CLI tool for accessing the github.com API")
 
     cli_root.AddCallback(cmd_cb_validate_creds)
@@ -21,14 +21,14 @@ func cmd_init() *clicommand.CLICommand {
     cli_root.AddArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
     cli_root.AddArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true)
 
-    cli_auth := cli_root.AddMenu("auth", "Manage OAuth Access", nil)
-    cli_auth.AddMenu("create", "Create OAuth Token", command_auth_create)
-    cli_auth.AddMenu("get", "Get OAuth Token Details", command_auth_get)
+    cli_auth := cli_root.AddCommand("auth", "Manage OAuth Access", nil)
+    cli_auth.AddCommand("create", "Create OAuth Token", command_auth_create)
+    cli_auth.AddCommand("get", "Get OAuth Token Details", command_auth_get)
 
     return cli_root
 }
 
-func cmd_cb_validate_creds(data *clicommand.CLICommandData) error {
+func cmd_cb_validate_creds(data *clicommand.Data) error {
     for _, k := range []string{"GHAPI_USERNAME","GHAPI_PASSWORD","GHAPI_MFATOKEN","GHAPI_APITOKEN"} {
         if v := os.Getenv(k); v != "" {
             data.Options[k] = v
