@@ -17,7 +17,6 @@ func cmd_init() *clicommand.Command {
 
     cli_root.AddArg("username", "Username for github.com, or use ENV GHAPI_USERNAME", true)
     cli_root.AddArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true)
-//    cli_root.AddArgNote("password", "Only one of password or apitoken must be specified")
     cli_root.AddArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
     cli_root.AddArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true)
 
