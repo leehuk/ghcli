@@ -59,7 +59,7 @@ func cmd_init() *clicommand.Command {
 }
 
 func cmd_cb_validate_creds(data *clicommand.Data) error {
-	for k, t := range map[string]string{"GHAPI_USERNAME":"username", "GHAPI_APITOKEN":"apitoken"} {
+	for k, t := range map[string]string{"GHAPI_USERNAME": "username", "GHAPI_APITOKEN": "apitoken"} {
 		if v := os.Getenv(k); v != "" {
 			data.Options[t] = v
 		}
@@ -78,7 +78,7 @@ func cmd_cb_validate_creds(data *clicommand.Data) error {
 }
 
 func cmd_cb_validate_creds_password(data *clicommand.Data) error {
-	for k, t := range map[string]string{"GHAPI_PASSWORD":"password", "GHAPI_MFATOKEN":"mfatoken"} {
+	for k, t := range map[string]string{"GHAPI_PASSWORD": "password", "GHAPI_MFATOKEN": "mfatoken"} {
 		if v := os.Getenv(k); v != "" {
 			data.Options[t] = v
 		}
