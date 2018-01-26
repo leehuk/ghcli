@@ -33,6 +33,10 @@ func cmd_init() *clicommand.Command {
 	// ghcli auth
 	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
 
+	// ghcli auth: common arguments
+	cliAuthArgNote := clicommand.NewArg("note", "Description of oauth token purpose", true)
+	cliAuthArgScopes := clicommand.NewArg("scopes", "Comma separated list of scopes", true)
+
 	// ghcli auth create
 	//
 	// This has a special exception to apitoken requirements tracked via cliAuthCreatePtr,
@@ -43,6 +47,7 @@ func cmd_init() *clicommand.Command {
 	cliAuthCreate.BindCallback(cmd_cb_validate_creds_password)
 	cliAuthCreate.NewArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true)
 	cliAuthCreate.NewArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
+	cliAuthCreate.BindArg(cliAuthArgNote, cliAuthArgScopes)
 
 	// ghcli auth get
 	cliAuth.NewCommand("get", "Get OAuth Token Details", command_auth_get)
