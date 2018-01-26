@@ -11,3 +11,7 @@ func command_auth_create(params *clicommand.Data) error {
 func command_auth_get(params *clicommand.Data) error {
 	return nil
 }
+
+func command_auth_list(params *clicommand.Data) error {
+	return nil
+}

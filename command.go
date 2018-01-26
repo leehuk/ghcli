@@ -47,6 +47,9 @@ func cmd_init() *clicommand.Command {
 	// ghcli auth get
 	cliAuth.NewCommand("get", "Get OAuth Token Details", command_auth_get)
 
+	// ghcli auth list
+	cliAuth.NewCommand("list", "List OAuth Tokens", command_auth_list)
+
 	return cliRoot
 }
 
