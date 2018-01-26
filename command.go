@@ -8,23 +8,31 @@ import (
 )
 
 func cmd_init() *clicommand.Command {
-	cli_root := clicommand.NewCommand("ghcli", "CLI tool for accessing the github.com API", nil)
+	// root object
+	cliRoot := clicommand.NewCommand("ghcli", "CLI tool for accessing the github.com API", nil)
 
-	cli_root.BindCallback(cmd_cb_validate_creds)
+	// global callbacks
+	cliRoot.BindCallback(cmd_cb_validate_creds)
 
-	cli_root.NewArg("oj", "Output in JSON", false)
-	cli_root.NewArg("os", "Output in simple parseable form", false)
+	// global parameters
+	cliRoot.NewArg("oj", "Output in JSON", false)
+	cliRoot.NewArg("os", "Output in simple parseable form", false)
 
-	cli_root.NewArg("username", "Username for github.com, or use ENV GHAPI_USERNAME", true)
-	cli_root.NewArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true)
-	cli_root.NewArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
-	cli_root.NewArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true)
+	cliRoot.NewArg("username", "Username for github.com, or use ENV GHAPI_USERNAME", true)
+	cliRoot.NewArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true)
+	cliRoot.NewArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
+	cliRoot.NewArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true)
 
-	cli_auth := cli_root.NewCommand("auth", "Manage OAuth Access", nil)
-	cli_auth.NewCommand("create", "Create OAuth Token", command_auth_create)
-	cli_auth.NewCommand("get", "Get OAuth Token Details", command_auth_get)
+	// ghcli auth
+	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
 
-	return cli_root
+	// ghcli auth create
+	cliAuth.NewCommand("create", "Create OAuth Token", command_auth_create)
+
+	// ghcli auth get
+	cliAuth.NewCommand("get", "Get OAuth Token Details", command_auth_get)
+
+	return cliRoot
 }
 
 func cmd_cb_validate_creds(data *clicommand.Data) error {
