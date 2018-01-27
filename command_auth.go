@@ -7,6 +7,17 @@ import (
 )
 
 func command_auth_create(params *clicommand.Data) error {
+	var postdata = make(map[string]interface{})
+
+	postdata["note"] = params.Options["note"]
+
+	if data, err := ghhttpBasic("POST", "/authorizations", postdata, params.Options); err == nil {
+		dataj, _ := json.Marshal(data)
+		fmt.Printf("%s\n", dataj)
+	} else {
+		return err
+	}
+
 	return nil
 }
 
