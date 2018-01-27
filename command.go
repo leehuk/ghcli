@@ -15,15 +15,15 @@ var (
 )
 
 func cmd_init() *clicommand.Command {
-	// root object
+	// ghcli
 	cliRoot := clicommand.NewCommand("ghcli", "CLI tool for accessing the github.com API", nil)
 
 	// ghcli: callbacks
 	cliRoot.BindCallbackPre(cmd_cb_env_translate)
 	cliRoot.BindCallback(cmd_cb_validate_creds)
 
-	// global parameters
-	cliRoot.NewArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true)
+	// ghcli: parameters
+	cliRoot.NewArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true).SetRequired()
 
 	// ghcli auth
 	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
@@ -71,6 +71,12 @@ func cmd_cb_env_translate_auth(data *clicommand.Data) error {
 	for k, t := range map[string]string{"GHAPI_USERNAME": "username", "GHAPI_PASSWORD": "password", "GHAPI_MFATOKEN": "mfatoken"} {
 		if v := os.Getenv(k); v != "" {
 			data.Options[t] = v
+		}
+	}
+
+	if arg := data.Cmd.GetArg("apitoken", true); arg != nil {
+		for _, cmd := range arg.GetParents() {
+			cmd.UnbindArg(arg)
 		}
 	}
 
