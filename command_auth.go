@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/leehuk/golang-clicommand"
 )
 
@@ -13,5 +15,14 @@ func command_auth_get(params *clicommand.Data) error {
 }
 
 func command_auth_list(params *clicommand.Data) error {
+	var postdata = make(map[string]interface{})
+
+	if data, err := ghhttpBasic("GET", "/authorizations", postdata, params.Options); err == nil {
+		dataj, _ := json.Marshal(data)
+		fmt.Printf("%s\n", dataj)
+	} else {
+		return err
+	}
+
 	return nil
 }
