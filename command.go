@@ -22,19 +22,14 @@ func cmd_init() *clicommand.Command {
 	cliRoot.BindCallback(cmd_cb_validate_creds)
 
 	// global parameters
-	cliRoot.NewArg("oj", "Output in JSON", false)
-	cliRoot.NewArg("os", "Output in simple parseable form", false)
-
 	cliRoot.NewArg("username", "Username for github.com, or use ENV GHAPI_USERNAME", true)
-	cliRoot.NewArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true)
-	cliRoot.NewArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
 	cliRoot.NewArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true)
 
 	// ghcli auth
 	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
 
 	// ghcli auth: common arguments
-	cliAuthArgNote := clicommand.NewArg("note", "Description of oauth token purpose", true)
+	cliAuthArgNote := clicommand.NewArg("note", "Description of oauth token purpose", true).SetRequired()
 	cliAuthArgScopes := clicommand.NewArg("scopes", "Comma separated list of scopes", true)
 
 	// ghcli auth create
