@@ -20,7 +20,6 @@ func cmd_init() *clicommand.Command {
 
 	// ghcli: callbacks
 	cliRoot.BindCallbackPre(cmd_cb_env_translate)
-	cliRoot.BindCallback(cmd_cb_validate_creds)
 
 	// ghcli: parameters
 	cliRoot.NewArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true).SetRequired()
@@ -78,15 +77,6 @@ func cmd_cb_env_translate_auth(data *clicommand.Data) error {
 		for _, cmd := range arg.GetParents() {
 			cmd.UnbindArg(arg)
 		}
-	}
-
-	return nil
-}
-
-func cmd_cb_validate_creds(data *clicommand.Data) error {
-	// apitoken is required, except for when calling auth create which can use a password
-	if _, ok := data.Options["apitoken"]; !ok && cliAuthPtr != data.Cmd {
-		return fmt.Errorf("Required option missing: apitoken")
 	}
 
 	return nil
