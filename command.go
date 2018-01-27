@@ -22,7 +22,7 @@ func cmd_init() *clicommand.Command {
 	cliRoot.BindCallbackPre(cmd_cb_env_translate)
 
 	// ghcli: parameters
-	cliRoot.NewArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true).SetRequired()
+	cliRoot.NewOption("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true).SetRequired()
 
 	// ghcli auth
 	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
@@ -36,16 +36,16 @@ func cmd_init() *clicommand.Command {
 	cliAuth.BindCallback(cmd_cb_validate_creds_auth)
 
 	// ghcli auth: common arguments
-	cliAuth.NewArg("username", "Username for github.com, or use ENV GHAPI_USERNAME", true).SetRequired()
-	cliAuth.NewArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true).SetRequired()
-	cliAuth.NewArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
+	cliAuth.NewOption("username", "Username for github.com, or use ENV GHAPI_USERNAME", true).SetRequired()
+	cliAuth.NewOption("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true).SetRequired()
+	cliAuth.NewOption("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
 
-	cliAuthArgNote := clicommand.NewArg("note", "Description of oauth token purpose", true).SetRequired()
-	cliAuthArgScopes := clicommand.NewArg("scopes", "Comma separated list of scopes", true)
+	cliAuthOptionNote := clicommand.NewOption("note", "Description of oauth token purpose", true).SetRequired()
+	cliAuthOptionScopes := clicommand.NewOption("scopes", "Comma separated list of scopes", true)
 
 	// ghcli auth create
 	cliAuthCreate := cliAuth.NewCommand("create", "Create OAuth Token", command_auth_create)
-	cliAuthCreate.BindArg(cliAuthArgNote, cliAuthArgScopes)
+	cliAuthCreate.BindOption(cliAuthOptionNote, cliAuthOptionScopes)
 
 	// ghcli auth get
 	cliAuth.NewCommand("get", "Get OAuth Token Details", command_auth_get)
@@ -73,9 +73,9 @@ func cmd_cb_env_translate_auth(data *clicommand.Data) error {
 		}
 	}
 
-	if arg := data.Cmd.GetArg("apitoken", true); arg != nil {
+	if arg := data.Cmd.GetOption("apitoken", true); arg != nil {
 		for _, cmd := range arg.GetParents() {
-			cmd.UnbindArg(arg)
+			cmd.UnbindOption(arg)
 		}
 	}
 
