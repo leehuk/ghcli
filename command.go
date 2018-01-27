@@ -8,41 +8,44 @@ import (
 )
 
 var (
-	// maintain a global pointer to auth create as it has a special exemption from
-	// apitoken requirements, and we dont want to use fragile reflection to compare pointers
-	cliAuthCreatePtr *clicommand.Command
+	// maintain a global pointer to auth parent menu as it has a special exemption from
+	// apitoken requirements, and we dont want to use reflection to compare pointers as
+	// its potentially unstable
+	cliAuthPtr *clicommand.Command
 )
 
 func cmd_init() *clicommand.Command {
 	// root object
 	cliRoot := clicommand.NewCommand("ghcli", "CLI tool for accessing the github.com API", nil)
 
-	// global callbacks
-	cliRoot.BindPreCallback(cmd_cb_env_translate)
-	cliRoot.BindValidateCallback(cmd_cb_validate_creds)
+	// ghcli: callbacks
+	cliRoot.BindCallbackPre(cmd_cb_env_translate)
+	cliRoot.BindCallback(cmd_cb_validate_creds)
 
 	// global parameters
-	cliRoot.NewArg("username", "Username for github.com, or use ENV GHAPI_USERNAME", true)
 	cliRoot.NewArg("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true)
 
 	// ghcli auth
 	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
 
+	// ghcli auth: callbacks
+	//
+	// The auth api only supports basic auth using username+password, so carve out
+	// its exception to apitoken requirements
+	cliAuthPtr = cliAuth
+	cliAuth.BindCallbackPre(cmd_cb_env_translate_auth)
+	cliAuth.BindCallback(cmd_cb_validate_creds_auth)
+
 	// ghcli auth: common arguments
+	cliAuth.NewArg("username", "Username for github.com, or use ENV GHAPI_USERNAME", true).SetRequired()
+	cliAuth.NewArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true).SetRequired()
+	cliAuth.NewArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
+
 	cliAuthArgNote := clicommand.NewArg("note", "Description of oauth token purpose", true).SetRequired()
 	cliAuthArgScopes := clicommand.NewArg("scopes", "Comma separated list of scopes", true)
 
 	// ghcli auth create
-	//
-	// This has a special exception to apitoken requirements tracked via cliAuthCreatePtr,
-	// as it supports password+mfatoken to create api tokens, which also has its own
-	// verification callback.
 	cliAuthCreate := cliAuth.NewCommand("create", "Create OAuth Token", command_auth_create)
-	cliAuthCreatePtr = cliAuthCreate
-	cliAuthCreate.BindPreCallback(cmd_cb_env_translate_authcreate)
-	cliAuthCreate.BindValidateCallback(cmd_cb_validate_creds_password)
-	cliAuthCreate.NewArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true)
-	cliAuthCreate.NewArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
 	cliAuthCreate.BindArg(cliAuthArgNote, cliAuthArgScopes)
 
 	// ghcli auth get
@@ -55,7 +58,7 @@ func cmd_init() *clicommand.Command {
 }
 
 func cmd_cb_env_translate(data *clicommand.Data) error {
-	for k, t := range map[string]string{"GHAPI_USERNAME": "username", "GHAPI_APITOKEN": "apitoken"} {
+	for k, t := range map[string]string{"GHAPI_APITOKEN": "apitoken"} {
 		if v := os.Getenv(k); v != "" {
 			data.Options[t] = v
 		}
@@ -64,8 +67,8 @@ func cmd_cb_env_translate(data *clicommand.Data) error {
 	return nil
 }
 
-func cmd_cb_env_translate_authcreate(data *clicommand.Data) error {
-	for k, t := range map[string]string{"GHAPI_PASSWORD": "password", "GHAPI_MFATOKEN": "mfatoken"} {
+func cmd_cb_env_translate_auth(data *clicommand.Data) error {
+	for k, t := range map[string]string{"GHAPI_USERNAME": "username", "GHAPI_PASSWORD": "password", "GHAPI_MFATOKEN": "mfatoken"} {
 		if v := os.Getenv(k); v != "" {
 			data.Options[t] = v
 		}
@@ -75,27 +78,24 @@ func cmd_cb_env_translate_authcreate(data *clicommand.Data) error {
 }
 
 func cmd_cb_validate_creds(data *clicommand.Data) error {
-	if _, ok := data.Options["username"]; !ok {
-		return errors.New("Required option missing: username")
-	}
-
 	// apitoken is required, except for when calling auth create which can use a password
-	if _, ok := data.Options["apitoken"]; !ok && cliAuthCreatePtr != data.Cmd {
+	if _, ok := data.Options["apitoken"]; !ok && cliAuthPtr != data.Cmd {
 		return fmt.Errorf("Required option missing: apitoken")
 	}
 
 	return nil
 }
 
-func cmd_cb_validate_creds_password(data *clicommand.Data) error {
+func cmd_cb_validate_creds_auth(data *clicommand.Data) error {
 
 	_, tokok := data.Options["apitoken"]
+	_, usrok := data.Options["username"]
 	_, pwdok := data.Options["password"]
 
-	if tokok && pwdok {
-		return fmt.Errorf("Conflicting options: apitoken and password")
-	} else if !tokok && !pwdok {
-		return fmt.Errorf("Required option missing: apitoken|password")
+	if tokok && (usrok || pwdok) {
+		return fmt.Errorf("Conflicting options: apitoken && username,password")
+	} else if !tokok && (!usrok || !pwdok) {
+		return fmt.Errorf("Required option missing: apitoken || username,password")
 	}
 
 	return nil
