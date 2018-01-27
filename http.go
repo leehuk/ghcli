@@ -25,7 +25,7 @@ func ghHttpNewRequest(method string, api string, data map[string]interface{}) (*
 
 	httpreq, err := http.NewRequest(method, "https://api.github.com"+api, datab)
 	if err != nil {
-		return  nil, err
+		return nil, err
 	}
 
 	if data != nil {
