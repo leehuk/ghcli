@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -19,7 +18,8 @@ func cmd_init() *clicommand.Command {
 	cliRoot := clicommand.NewCommand("ghcli", "CLI tool for accessing the github.com API", nil)
 
 	// global callbacks
-	cliRoot.BindCallback(cmd_cb_validate_creds)
+	cliRoot.BindPreCallback(cmd_cb_env_translate)
+	cliRoot.BindValidateCallback(cmd_cb_validate_creds)
 
 	// global parameters
 	cliRoot.NewArg("username", "Username for github.com, or use ENV GHAPI_USERNAME", true)
@@ -39,7 +39,8 @@ func cmd_init() *clicommand.Command {
 	// verification callback.
 	cliAuthCreate := cliAuth.NewCommand("create", "Create OAuth Token", command_auth_create)
 	cliAuthCreatePtr = cliAuthCreate
-	cliAuthCreate.BindCallback(cmd_cb_validate_creds_password)
+	cliAuthCreate.BindPreCallback(cmd_cb_env_translate_authcreate)
+	cliAuthCreate.BindValidateCallback(cmd_cb_validate_creds_password)
 	cliAuthCreate.NewArg("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true)
 	cliAuthCreate.NewArg("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
 	cliAuthCreate.BindArg(cliAuthArgNote, cliAuthArgScopes)
@@ -53,13 +54,27 @@ func cmd_init() *clicommand.Command {
 	return cliRoot
 }
 
-func cmd_cb_validate_creds(data *clicommand.Data) error {
+func cmd_cb_env_translate(data *clicommand.Data) error {
 	for k, t := range map[string]string{"GHAPI_USERNAME": "username", "GHAPI_APITOKEN": "apitoken"} {
 		if v := os.Getenv(k); v != "" {
 			data.Options[t] = v
 		}
 	}
 
+	return nil
+}
+
+func cmd_cb_env_translate_authcreate(data *clicommand.Data) error {
+	for k, t := range map[string]string{"GHAPI_PASSWORD": "password", "GHAPI_MFATOKEN": "mfatoken"} {
+		if v := os.Getenv(k); v != "" {
+			data.Options[t] = v
+		}
+	}
+
+	return nil
+}
+
+func cmd_cb_validate_creds(data *clicommand.Data) error {
 	if _, ok := data.Options["username"]; !ok {
 		return errors.New("Required option missing: username")
 	}
@@ -73,11 +88,6 @@ func cmd_cb_validate_creds(data *clicommand.Data) error {
 }
 
 func cmd_cb_validate_creds_password(data *clicommand.Data) error {
-	for k, t := range map[string]string{"GHAPI_PASSWORD": "password", "GHAPI_MFATOKEN": "mfatoken"} {
-		if v := os.Getenv(k); v != "" {
-			data.Options[t] = v
-		}
-	}
 
 	_, tokok := data.Options["apitoken"]
 	_, pwdok := data.Options["password"]
