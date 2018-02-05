@@ -1,10 +1,7 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-
-	"github.com/leehuk/golang-clicommand"
+	"github.com/leehuk/go-clicommand"
 )
 
 func command_auth_create(params *clicommand.Data) error {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/leehuk/golang-clicommand"
+	"github.com/leehuk/go-clicommand"
 )
 
 var (
@@ -17,25 +17,19 @@ var (
 func cmd_init() *clicommand.Command {
 	// ghcli
 	cliRoot := clicommand.NewCommand("ghcli", "CLI tool for accessing the github.com API", nil)
-
-	// ghcli: callbacks
 	cliRoot.BindCallbackPre(cmd_cb_env_translate)
-
-	// ghcli: parameters
 	cliRoot.NewOption("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true).SetRequired()
+
+	cliRoot.NewOption("ob", "Output in beautified json", false)
+	cliRoot.NewOption("os", "Output in simple json (default)", false)
 
 	// ghcli auth
 	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
-
-	// ghcli auth: callbacks
-	//
 	// The auth api only supports basic auth using username+password, so carve out
 	// its exception to apitoken requirements
 	cliAuthPtr = cliAuth
 	cliAuth.BindCallbackPre(cmd_cb_env_translate_auth)
 	cliAuth.BindCallback(cmd_cb_validate_creds_auth)
-
-	// ghcli auth: common arguments
 	cliAuth.NewOption("username", "Username for github.com, or use ENV GHAPI_USERNAME", true).SetRequired()
 	cliAuth.NewOption("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true).SetRequired()
 	cliAuth.NewOption("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
