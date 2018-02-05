@@ -21,6 +21,8 @@ func ghHttpNewRequest(method string, api string, data map[string]interface{}) (*
 			return nil, err
 		}
 		datab = bytes.NewBuffer(dataJson)
+	} else {
+		datab = new(bytes.Buffer)
 	}
 
 	httpreq, err := http.NewRequest(method, "https://api.github.com"+api, datab)
@@ -58,7 +60,7 @@ func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (interfac
 	return resdata, nil
 }
 
-func ghhttpToken(method string, api string, data map[string]interface{}, options map[string]string) (interface{}, error) {
+func ghHttp(method string, api string, data map[string]interface{}, options map[string]string, codes []int) (interface{}, error) {
 	httpclient, err := ghHttpNewClient()
 	if err != nil {
 		return nil, err
@@ -69,24 +71,14 @@ func ghhttpToken(method string, api string, data map[string]interface{}, options
 		return nil, err
 	}
 
-	httpreq.Header.Set("Authorization", fmt.Sprintf("token %s", options["apitoken"]))
+	_, userok := options["username"]
+	_, passok := options["password"]
 
-	return ghHttpExecRequest(httpclient, httpreq)
-}
-
-func ghhttpBasic(method string, api string, data map[string]interface{}, options map[string]string) (interface{}, error) {
-	httpclient, err := ghHttpNewClient()
-	if err != nil {
-		return nil, err
+	if userok && passok {
+		httpreq.SetBasicAuth(options["username"], options["password"])
+	} else {
+		httpreq.Header.Set("Authorization", fmt.Sprintf("token %s", options["apitoken"]))
 	}
 
-	httpreq, err := ghHttpNewRequest(method, api, data)
-	if err != nil {
-		return nil, err
-	}
-
-	httpreq.SetBasicAuth(options["username"], options["password"])
-
 	return ghHttpExecRequest(httpclient, httpreq)
-
 }

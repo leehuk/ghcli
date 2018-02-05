@@ -9,9 +9,8 @@ func command_auth_create(params *clicommand.Data) error {
 
 	postdata["note"] = params.Options["note"]
 
-	if data, err := ghhttpBasic("POST", "/authorizations", postdata, params.Options); err == nil {
-		dataj, _ := json.Marshal(data)
-		fmt.Printf("%s\n", dataj)
+	if data, err := ghHttp("POST", "/authorizations", postdata, params.Options); err == nil {
+		ghPrint(data, params)
 	} else {
 		return err
 	}
@@ -20,15 +19,22 @@ func command_auth_create(params *clicommand.Data) error {
 }
 
 func command_auth_get(params *clicommand.Data) error {
+	url := "/authorizations/" + params.Params[0]
+
+	if data, err := ghHttp("GET", url, nil, params.Options); err == nil {
+		ghPrint(data, params)
+	} else {
+		return err
+	}
+
 	return nil
 }
 
 func command_auth_list(params *clicommand.Data) error {
 	var postdata = make(map[string]interface{})
 
-	if data, err := ghhttpBasic("GET", "/authorizations", postdata, params.Options); err == nil {
-		dataj, _ := json.Marshal(data)
-		fmt.Printf("%s\n", dataj)
+	if data, err := ghHttp("GET", "/authorizations", postdata, params.Options); err == nil {
+		ghPrint(data, params)
 	} else {
 		return err
 	}
