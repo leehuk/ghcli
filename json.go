@@ -21,7 +21,6 @@ func (j *jsonData) get() interface{} {
 	return j.data.Data()
 }
 
-
 func (j *jsonData) gets(search string) interface{} {
 	return j.data.Path(search).Data()
 }
