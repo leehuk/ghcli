@@ -20,8 +20,8 @@ func cmd_init() *clicommand.Command {
 	cliRoot.BindCallbackPre(cmd_cb_env_translate)
 	cliRoot.NewOption("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true).SetRequired()
 
-	cliRoot.NewOption("ob", "Output in beautified json", false)
-	cliRoot.NewOption("os", "Output in simple json (default)", false)
+	cliRoot.NewOption("oj", "Output in json (default)", false)
+	cliRoot.NewOption("ojb", "Output in beautified json", false)
 
 	// ghcli auth
 	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
