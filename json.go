@@ -17,7 +17,15 @@ func jsonParse(datab []byte) (*jsonData, error) {
 	return &jsonData{data}, nil
 }
 
+func (j *jsonData) get() interface{} {
+	return j.data.Data()
+}
 
-func (j *jsonData) Get(search string) interface{} {
+
+func (j *jsonData) gets(search string) interface{} {
 	return j.data.Path(search).Data()
+}
+
+func (j *jsonData) getstr() string {
+	return j.data.String()
 }

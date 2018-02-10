@@ -7,12 +7,11 @@ import (
 	"github.com/leehuk/go-clicommand"
 )
 
-func ghPrint(data interface{}, params *clicommand.Data) {
+func ghPrint(data *jsonData, params *clicommand.Data) {
 	if _, ok := params.Options["ob"]; ok {
-		dataj, _ := json.MarshalIndent(data, "", "  ")
+		dataj, _ := json.MarshalIndent(data.get(), "", "  ")
 		fmt.Printf("%s\n", dataj)
 	} else {
-		dataj, _ := json.Marshal(data)
-		fmt.Printf("%s\n", dataj)
+		fmt.Printf("%s\n", data.getstr())
 	}
 }

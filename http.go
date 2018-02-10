@@ -37,7 +37,7 @@ func ghHttpNewRequest(method string, api string, data map[string]interface{}) (*
 	return httpreq, nil
 }
 
-func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (interface{}, error) {
+func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (*jsonData, error) {
 	httpresp, err := httpclient.Do(httpreq)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (interfac
 	jdata, err := jsonParse(httpbody)
 
 	if httpresp.StatusCode >= 400 {
-		if message, ok := jdata.Get("message").(string); ok {
+		if message, ok := jdata.gets("message").(string); ok {
 			return nil, fmt.Errorf("%d %s", httpresp.StatusCode, message)
 		}
 
@@ -63,7 +63,7 @@ func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (interfac
 	return jdata, nil
 }
 
-func ghHttp(method string, api string, data map[string]interface{}, options map[string]string) (interface{}, error) {
+func ghHttp(method string, api string, data map[string]interface{}, options map[string]string) (*jsonData, error) {
 	httpclient, err := ghHttpNewClient()
 	if err != nil {
 		return nil, err
