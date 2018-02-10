@@ -50,17 +50,20 @@ func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (interfac
 		return nil, err
 	}
 
-	var resdata interface{}
+	jdata, err := jsonParse(httpbody)
 
-	err = json.Unmarshal(httpbody, &resdata)
-	if err != nil {
-		return nil, err
+	if httpresp.StatusCode >= 400 {
+		if message, ok := jdata.Get("message").(string); ok {
+			return nil, fmt.Errorf("%d %s", httpresp.StatusCode, message)
+		}
+
+		return nil, fmt.Errorf("%s", httpresp.Status)
 	}
 
-	return resdata, nil
+	return jdata, nil
 }
 
-func ghHttp(method string, api string, data map[string]interface{}, options map[string]string, codes []int) (interface{}, error) {
+func ghHttp(method string, api string, data map[string]interface{}, options map[string]string) (interface{}, error) {
 	httpclient, err := ghHttpNewClient()
 	if err != nil {
 		return nil, err
