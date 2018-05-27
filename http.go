@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/leehuk/go-clicommand"
 )
 
 func ghHttpNewClient() (*http.Client, error) {
@@ -37,7 +39,7 @@ func ghHttpNewRequest(method string, api string, data map[string]interface{}) (*
 	return httpreq, nil
 }
 
-func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (*jsonData, error) {
+func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (map[string]interface{}, error) {
 	httpresp, err := httpclient.Do(httpreq)
 	if err != nil {
 		return nil, err
@@ -50,10 +52,11 @@ func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (*jsonDat
 		return nil, err
 	}
 
-	jdata, err := jsonParse(httpbody)
+	var jdata map[string]interface{}
+	json.Unmarshal(httpbody, &jdata)
 
 	if httpresp.StatusCode >= 400 {
-		if message, ok := jdata.gets("message").(string); ok {
+		if message, ok := jdata["message"].(string); ok {
 			return nil, fmt.Errorf("%d %s", httpresp.StatusCode, message)
 		}
 
@@ -63,7 +66,7 @@ func ghHttpExecRequest(httpclient *http.Client, httpreq *http.Request) (*jsonDat
 	return jdata, nil
 }
 
-func ghHttp(method string, api string, data map[string]interface{}, options map[string]string) (*jsonData, error) {
+func ghHttp(method string, api string, data map[string]interface{}, options map[string]string) (map[string]interface{}, error) {
 	httpclient, err := ghHttpNewClient()
 	if err != nil {
 		return nil, err
@@ -89,4 +92,14 @@ func ghHttp(method string, api string, data map[string]interface{}, options map[
 	}
 
 	return ghHttpExecRequest(httpclient, httpreq)
+}
+
+func ghPrint(data map[string]interface{}, params *clicommand.Data) {
+	if _, ok := params.Options["ob"]; ok {
+		dataj, _ := json.MarshalIndent(data, "", "  ")
+		fmt.Printf("%s\n", dataj)
+	} else {
+		dataj, _ := json.Marshal(data)
+		fmt.Printf("%s\n", dataj)
+	}
 }
