@@ -20,7 +20,7 @@ func cmd_init() *clicommand.Command {
 	cliRoot.BindCallbackPre(cmd_cb_env_translate)
 	cliRoot.NewOption("apitoken", "API Token for github.com, or use ENV GHAPI_APITOKEN", true).SetRequired()
 
-	cliRoot.NewOption("b", "Output in beautified json", false)
+	cliRoot.NewOption("ob", "Output in beautified json", false)
 
 	// ghcli auth
 	cliAuth := cliRoot.NewCommand("auth", "Manage OAuth Access", nil)
@@ -39,6 +39,7 @@ func cmd_init() *clicommand.Command {
 	cliAuthCreate.NewOption("username", "Username for github.com, or use ENV GHAPI_USERNAME", true).SetRequired()
 	cliAuthCreate.NewOption("password", "Password for github.com, or use ENV GHAPI_PASSWORD", true).SetRequired()
 	cliAuthCreate.NewOption("mfatoken", "MFA Token (e.g. Auth App) for github.com, or use ENV GHAPI_MFATOKEN", true)
+	cliAuthCreate.NewOption("os", "Output the API token only", false)
 
 	// ghcli auth get
 	cliAuth.NewCommand("get", "Get OAuth Token Details", command_auth_get)

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/leehuk/go-clicommand"
 )
 
@@ -10,7 +12,16 @@ func command_auth_create(params *clicommand.Data) error {
 	postdata["note"] = params.Options["note"]
 
 	if data, err := ghHttp("POST", "/authorizations", postdata, params.Options); err == nil {
-		ghPrint(data, params)
+		if _, ok := params.Options["os"]; ok {
+			token := data.data.Path("token").String()
+			if token != "" {
+				fmt.Printf("%s", token)
+			} else {
+				return fmt.Errorf("Unable to decode token field")
+			}
+		} else {
+			ghPrint(data, params)
+		}
 	} else {
 		return err
 	}

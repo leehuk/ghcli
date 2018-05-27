@@ -8,7 +8,7 @@ import (
 )
 
 func ghPrint(data *jsonData, params *clicommand.Data) {
-	if _, ok := params.Options["ojb"]; ok {
+	if _, ok := params.Options["ob"]; ok {
 		dataj, _ := json.MarshalIndent(data.get(), "", "  ")
 		fmt.Printf("%s\n", dataj)
 	} else {
