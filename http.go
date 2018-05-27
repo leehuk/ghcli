@@ -76,9 +76,14 @@ func ghHttp(method string, api string, data map[string]interface{}, options map[
 
 	_, userok := options["username"]
 	_, passok := options["password"]
+	_, mfaok := options["mfatoken"]
 
 	if userok && passok {
 		httpreq.SetBasicAuth(options["username"], options["password"])
+
+		if mfaok {
+			httpreq.Header.Set("X-GitHub-OTP", fmt.Sprintf("%v", options["mfatoken"]))
+		}
 	} else {
 		httpreq.Header.Set("Authorization", fmt.Sprintf("token %s", options["apitoken"]))
 	}
